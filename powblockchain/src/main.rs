@@ -1,5 +1,5 @@
 use std::io;
-
+use std::process::exit;
 
 
 mod mychain;
@@ -62,14 +62,15 @@ fn main() {
     let mut  rec =  String::new() ;
     let mut amount = String::new();
  
-                 // add a transaction 
+                 // add a transaction\
+                 println!("enter the sender's address:");
                
                  io::stdin().read_line(&mut sender);
  
-       
+                 println!("enter the receiver's address:");
                  io::stdin().read_line(&mut rec);
  
- 
+                println!("enter the  amount :");
                 // let a  = convert_to_ref(sender);
                  io::stdin().read_line(&mut amount);
                    // dangle 
@@ -108,7 +109,8 @@ fn main() {
  
                },
                3=>{
-                 // change difficulty 
+                 // change difficulty
+                   println!("enter the new difficulty:") ;
                  let mut new_difficulty = String::new() ;
                  // method 
  
@@ -129,6 +131,7 @@ fn main() {
  
                },
                4=> {
+                   println!("enter the new reward:") ;
                  let mut new_reward = String::new() ;
                  io::stdin().read_line(&mut new_reward );
                  let parsed_new_reward:f32 = new_reward.trim().parse().unwrap();
@@ -146,10 +149,17 @@ fn main() {
                   }
                  // change reward
                }
-               _=> {
+               0 => {
                  // exit 
  
-                 println!("exiting ..... ")
+                 println!("exiting ..... ");
+                 exit(0);
+               }
+               _ => {
+                 // exit
+
+                 println!("exiting ..... ");
+                 exit(0);
                }
  
     }

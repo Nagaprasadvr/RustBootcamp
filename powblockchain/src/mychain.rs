@@ -84,11 +84,11 @@ impl<'a>Chain<'a> {
 
 
  pub fn new(miner_addr:&'a str,difficulty:u32,reward:f32)-> Self{
-
+        let m = miner_addr.trim();
         let mut chain = Chain{
 
             chain:vec![],
-            miner_addr,
+            miner_addr:m,
             reward,
             difficulty,
             curr_trans:vec![]
@@ -116,8 +116,8 @@ impl<'a>Chain<'a> {
 
 let trans = Transaction{
 
-      sender:sender,
-      reciever:rec,
+      sender:sender.trim().to_owned(),
+      reciever:rec.trim().to_owned(),
       amount
 };
 
@@ -156,7 +156,7 @@ let header = BlockHeader {
 
     let reward_trans = Transaction{
         sender:String::from("Root"),
-        reciever:self.miner_addr.to_owned(),
+        reciever:self.miner_addr.trim().to_owned(),
         amount:100.0
 
     };
