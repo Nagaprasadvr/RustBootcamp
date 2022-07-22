@@ -52,9 +52,9 @@ fn main(){
            }
            None => {
                println!("wallet address not found ");
+               exit(0)
 
-               let s1 = String::from("Root");
-               s1
+
            }
 
 
