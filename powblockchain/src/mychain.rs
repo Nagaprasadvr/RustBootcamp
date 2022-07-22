@@ -1,8 +1,14 @@
-
-
+use rand::thread_rng;
+use serde_json::to_string;
+use sha256::digest;
+// use rsa::{PublicKey,RsaPrivateKey,RsaPublicKey,PaddingScheme};
 use chrono::prelude::*; 
 use sha2::{Digest,Sha256};
-use std::fmt::Write;
+use std::fmt::{Debug, Pointer, Write};
+use std::fmt::Display;
+use solana_sdk::signer::keypair::Keypair;
+use std::collections::HashMap;
+
 
 use serde_derive::{Serialize,Deserialize};
 /*
@@ -43,13 +49,80 @@ struct Chain{
 */
 
 use std::vec;
+use rsa::pkcs8::der::Encode;
+// use rsa::pkcs1::LineEnding;
+// use rsa::pkcs8::{EncodePublicKey, SecretDocument};
+use serde::de::Unexpected::Str;
+use solana_sdk::pubkey::Pubkey;
+use solana_sdk::signer::Signer;
+
 #[derive(Debug)]
 struct Block{
     header:BlockHeader,
     transaction:Vec<Transaction>,
     count:u32 
   }
+#[derive(Debug)]
+enum Token{
+    SOL,
+    ETH,
+    BTC
+}
+#[derive(Debug)]
+pub struct Wallet{
+    name:String,
+    pub pubaddr:String,
+    pvtaddr:[u8;32],
+    balance:f64,
+    pass_hash:String,
+    token:Token
+}
 
+impl Wallet {
+    pub fn create_wallet(name:String,pass:String)->Self
+    {
+        let bits = 2048;
+        let mut rand = thread_rng();
+        let kpair = Keypair::new();
+        let private_key= kpair.secret().to_bytes();
+        let public_key=kpair.pubkey().to_string();
+        // let pubkey:String = public_key.clone()
+        // let prvkey:String = private_key.
+        let hashed_pass:String = digest(pass);
+        Self {name,pubaddr:public_key,pvtaddr:private_key,balance:100_f64,pass_hash:hashed_pass,token:Token::SOL}
+
+
+
+    }
+
+}
+
+#[derive(Debug)]
+pub struct Accounts{
+    pub wallets:HashMap<String,Wallet>
+}
+impl Accounts{
+    pub fn push(&mut self,name:String,w:Wallet)
+    {
+     self.wallets.insert(name,w)  ;
+    }
+    pub fn print_accounts(&self)
+    {
+        println!("Accounts :");
+        println!("{{");
+        for (k,i) in self.wallets.iter()
+        {
+            println!("name:{}",i.name);
+            println!("public address :{}",i.pubaddr);
+            // println!("hashed pass:{}",i.pass_hash);
+            println!("balance:{:?}",i.balance);
+            println!("Token:{:?}",i.token);
+
+
+        }
+        println!("}}");
+    }
+}
 
   
   #[derive(Debug,Serialize,Deserialize)]
@@ -373,6 +446,12 @@ let result = hasher.finalize();
     let result = hasher.finalize();
     // result hash Sha256  -> string 
       let res_vec = result.to_vec();
+     // let mut v1:Vec<u8> = match res_vec
+     // {
+     //     Ok(v)=>v,
+     //     _ =>Vec::<u8>::new()
+     //
+     // };
     // write!  -> Vec<u8>
      // res_vec -> string -> write!
 
@@ -380,14 +459,14 @@ let result = hasher.finalize();
     Self::hex_to_string(res_vec)
  }
 
- fn hex_to_string(item:Vec<u8>) -> String{
+ fn hex_to_string(item:Vec<u8>) ->String {
 
 
     let mut s= String::new();
     for b in item {
         write!(&mut s,"{:x}",b).expect("unable to convert");
     }
-    s
+    return s
  }
 
   // merkle -> hashing Transaction

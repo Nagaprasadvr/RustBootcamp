@@ -1,21 +1,66 @@
 use std::io;
 use std::process::exit;
 
+use std::collections::HashMap;
+use serde::de::Unexpected::Str;
+//use serde_json::Value::String;
 
 mod mychain;
 
-use mychain::Chain; 
+use mychain::{Chain,Wallet,Accounts};
 // adding 
 // pow 
 // 
 
-fn main() {
- 
-    println!("enter the miner address")   ;
+fn main(){
 
+
+
+    let mut chain:Chain;
+
+    let mut acc = Accounts{wallets:HashMap::new()};
+
+
+    println!("Create your wallet first !");
+
+     println!("Enter your name:");
+                  let mut name = String::new();
+                  io::stdin().read_line(&mut name);
+
+                  println!("Enter your wallet password:");
+                  let mut  pass = String::new();
+                  io::stdin().read_line(&mut pass);
+                  let wallet = Wallet::create_wallet(name.clone(),pass);
+
+                  acc.push(name,wallet);
+                  acc.print_accounts();
+ 
+    println!("enter the miner name")   ;
+    let mut miner_name = String::new();
     let mut miner_addr = String::new();
 
-    io::stdin().read_line(&mut miner_addr);
+
+    io::stdin().read_line(&mut miner_name);
+    let mut  flag = 0;
+    miner_addr = match acc.wallets.get_key_value(&miner_name)
+    {
+           Some((a,b)) => {
+               let w = b.clone();
+               flag = 1;
+               w.pubaddr.to_string()
+
+           }
+           None => {
+               println!("wallet address not found ");
+
+               let s1 = String::from("Root");
+               s1
+           }
+
+
+    };
+
+
 
 
     println!("enter the difficulty")   ;
@@ -35,16 +80,19 @@ fn main() {
    // merkle 
    // time_stamp
    // nonce
-   // 
+   //
 
-   let mut  chain = Chain::new(miner_addr.as_str(),parsed_difficulty,100.0);
+
+
+        chain= Chain::new(miner_addr.as_str(), parsed_difficulty, 100.0);
 
   loop{
     println!("Menu");
-    println!("1-New Transaction");
-    println!("2-Mine Block");
-    println!("3-Change difficulty");
-    println!("4-Change Reward");
+    println!("1-Create Wallet");
+    println!("2-New Transaction");
+    println!("3-Mine Block");
+    println!("4-Change difficulty");
+    println!("5-Change Reward");
     println!("0-Exit");
  
     let mut choice = String::new();
@@ -53,9 +101,22 @@ fn main() {
     // 
     let parsed_choice:u32 = choice.trim().parse().unwrap() ;
     match parsed_choice {
+              1 => {
+                  println!("Enter your name:");
+                  let mut name = String::new();
+                  io::stdin().read_line(&mut name);
+                  println!("Enter your wallet password:");
+                  let mut  pass = String::new();
+                  io::stdin().read_line(&mut pass);
+                  let wallet = Wallet::create_wallet(name.clone(),pass);
+                  acc.push(name.clone(),wallet);
+                  acc.print_accounts();
+
+
+
+              }
  
- 
-               1 => {
+               2 => {
 
 
     let mut sender  = String::new() ;
@@ -90,7 +151,7 @@ fn main() {
  
                },
  
-               2=>{
+               3=>{
  
                  // mine a block => generating block
                  println!("generating a block"); 
@@ -108,7 +169,7 @@ fn main() {
                  }
  
                },
-               3=>{
+               4=>{
                  // change difficulty
                    println!("enter the new difficulty:") ;
                  let mut new_difficulty = String::new() ;
@@ -130,7 +191,7 @@ fn main() {
                      }
  
                },
-               4=> {
+               5=> {
                    println!("enter the new reward:") ;
                  let mut new_reward = String::new() ;
                  io::stdin().read_line(&mut new_reward );
