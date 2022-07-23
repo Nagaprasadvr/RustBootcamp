@@ -1,6 +1,6 @@
 use std::io;
 use std::process::exit;
-
+use sha256::digest;
 use std::collections::HashMap;
 use serde::de::Unexpected::Str;
 //use serde_json::Value::String;
@@ -87,13 +87,14 @@ fn main(){
         chain= Chain::new(miner_addr.as_str(), parsed_difficulty, 100.0);
 
   loop{
-    println!("Menu");
-    println!("1-Create Wallet");
-    println!("2-New Transaction");
-    println!("3-Mine Block");
-    println!("4-Change difficulty");
-    println!("5-Change Reward");
-    println!("0-Exit");
+      println!("Menu");
+      println!("1-Create Wallet");
+      println!("6-Show Accounts");
+      println!("2-New Transaction");
+      println!("3-Mine Block");
+      println!("4-Change difficulty");
+      println!("5-Change Reward");
+      println!("0-Exit");
  
     let mut choice = String::new();
     io::stdin().read_line(&mut choice); 
@@ -117,39 +118,89 @@ fn main(){
               }
  
                2 => {
+                   let mut sender = String::new();
+                   let mut rec = String::new();
+                   let mut amount = String::new();
+
+                   // add a transaction\
+                   println!("enter the sender's name:");
+
+                   io::stdin().read_line(&mut sender);
+
+                   println!("enter the receiver's name:");
+                   io::stdin().read_line(&mut rec);
+
+                   println!("enter the  amount :");
+                   // let a  = convert_to_ref(sender);
+                   io::stdin().read_line(&mut amount);
+                   // dangle
+                   println!("Enter your password to make the transaction:");
+                   let mut pass:String = String::new();
+                   io::stdin().read_line(&mut pass);
+                   let hash_pass:String = digest(pass);
 
 
-    let mut sender  = String::new() ;
-    let mut  rec =  String::new() ;
-    let mut amount = String::new();
- 
-                 // add a transaction\
-                 println!("enter the sender's address:");
-               
-                 io::stdin().read_line(&mut sender);
- 
-                 println!("enter the receiver's address:");
-                 io::stdin().read_line(&mut rec);
- 
-                println!("enter the  amount :");
-                // let a  = convert_to_ref(sender);
-                 io::stdin().read_line(&mut amount);
-                   // dangle 
-                 let parse_amount:f32 = amount.trim().parse().unwrap();
-   
-                 let res = chain.add_transaction(sender, rec, parse_amount);
- 
-                 match res {
- 
-                     Ok( _) =>{
-                         println!("Transaction is added");
-                     },
-                     Err(_) =>{
-                         println!("Transaction is reverted");
-                     }
-                 }
- 
+                   let parse_amount: f64 = amount.trim().parse().unwrap();
+                   let p:f32 =amount.trim().parse().unwrap();
+                  let mut f=0;
+                   let mut saddr :String = String::new();
+                   let mut  raddr:String = String::new();
+
+                  if acc.wallets.contains_key(&sender)
+                  {
+                      if acc.wallets.contains_key(&rec)
+                      {
+                          let sendw  = acc.wallets.get_mut(&sender).unwrap();
+                          if sendw.pass_hash==hash_pass
+                          {
+                              if sendw.bal_validate(parse_amount) == 1
+                              {
+                                  f = 1;
+
+                                  sendw.sub_bal(parse_amount);
+                                  saddr = sendw.pubaddr.to_string();
+                              }
+                              else { println!("Insufficient Balance!"); }
+                          }
+                          else { println!("Wrong Password!"); }
+                      }
+                      else {  println!("Receiver wallet not found!");
+                       continue; }
+
+
+
+                  }
+                   else{
+                       println!("Sender wallet not found!");
+                       continue;
+                   }
+
+                   if f==1
+                   {
+                       let recw = acc.wallets.get_mut(&rec).unwrap();
+                       raddr = recw.pubaddr.to_string();
+                       recw.add_bal(parse_amount);
+                       let res = chain.add_transaction(saddr, raddr, p);
+                       match res {
+                           Ok(_) => {
+                               println!("Transaction is added");
+                           },
+                           Err(_) => {
+                               println!("Transaction is reverted");
+                           }
+                       }
+                   }
+                   else { println!("Transaction is reverted"); }
+
+
+
+
+
+
                },
+
+   
+
  
                3=>{
  
@@ -167,7 +218,7 @@ fn main(){
                          println!("block is reverted");
                      }
                  }
- 
+
                },
                4=>{
                  // change difficulty
@@ -216,6 +267,8 @@ fn main(){
                  println!("exiting ..... ");
                  exit(0);
                }
+              6 => {acc.show_accounts();},
+
                _ => {
                  // exit
 

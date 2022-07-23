@@ -63,7 +63,7 @@ struct Block{
     count:u32 
   }
 #[derive(Debug)]
-enum Token{
+pub enum Token{
     SOL,
     ETH,
     BTC
@@ -73,9 +73,9 @@ pub struct Wallet{
     name:String,
     pub pubaddr:String,
     pvtaddr:[u8;32],
-    balance:f64,
-    pass_hash:String,
-    token:Token
+    pub balance:f64,
+    pub pass_hash:String,
+    pub token:Token
 }
 
 impl Wallet {
@@ -93,6 +93,23 @@ impl Wallet {
 
 
 
+    }
+    pub fn bal_validate(&self,amount:f64)->i32
+    {
+        if self.balance<amount
+        {
+            0
+        }
+        else { 1 }
+    }
+
+    pub fn add_bal(&mut self,amount:f64)
+    {
+        self.balance = self.balance+amount;
+    }
+     pub fn sub_bal(&mut self,amount:f64)
+    {
+        self.balance = self.balance-amount;
     }
 
 }
@@ -112,16 +129,35 @@ impl Accounts{
         println!("{{");
         for (k,i) in self.wallets.iter()
         {
-            println!("name:{}",i.name);
+            println!("{{");
+            println!("name:{}",i.name.trim());
             println!("public address :{}",i.pubaddr);
-            // println!("hashed pass:{}",i.pass_hash);
             println!("balance:{:?}",i.balance);
             println!("Token:{:?}",i.token);
-
+            println!("}}");
+            println!("\n");
 
         }
         println!("}}");
     }
+
+    pub fn show_accounts(&self)
+    {
+        println!("Accounts :");
+        println!("{{");
+       for (i,j) in self.wallets.iter()
+       {   println!("{{");
+           println!("name:{}",i.trim());
+           println!("public address:{}",j.pubaddr);
+           println!("Balance:{}",j.balance);
+           println!("Token:{:?}",j.token);
+           println!("}}");
+           println!("\n");
+       }
+        println!("}}");
+
+    }
+
 }
 
   
@@ -430,7 +466,27 @@ fn get_merkle(curr_trans:Vec<Transaction>) -> String {
     // how to hash ?? sha2
 
     /*
-    
+    trait cal
+    {
+     fn calculate(&self)->Self;
+
+    }
+    impl Math for square
+    {
+    fn calculate_perimeter(&self)->i32
+    {
+      self.side*4
+
+    }
+    impl Math for triangle
+    {
+    fn calculate_perimeter(&self)->i32
+    {
+      self.side_a+self.side_b+self.side_c+self.side_d
+
+    }
+
+    }
     / create a Sha256 object
 let mut hasher = Sha256::new();
 
